@@ -1,0 +1,1 @@
+// magic-link login, no siderbar

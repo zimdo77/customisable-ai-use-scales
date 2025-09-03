@@ -1,0 +1,1 @@
+// Redirects to /home after auth
