@@ -14,7 +14,7 @@ export default function SidebarNav() {
 
   return (
     <aside className="w-56 bg-gray-200 flex flex-col justify-between min-h-screen">
-      {/* Logo / header */}
+      {/* Logo + title */}
       <div>
         <div className="flex items-center gap-2 p-4">
             <img
@@ -25,7 +25,7 @@ export default function SidebarNav() {
   <span className="text-sm font-semibold">AI Use Scales</span>
 </div>
 
-        {/* Navigation */}
+        {/* Links for pages */}
         <nav className="flex flex-col gap-2 px-4 text-sm">
           {links.map((link) => (
             <Link
@@ -45,9 +45,12 @@ export default function SidebarNav() {
       </div>
 
       {/* Footer */}
-      <div className="p-4 text-xs font-semibold text-gray-600">
-        © 2025 YourApp
-      </div>
+      <Link
+        href="/profile"
+        className="block p-4 text-xs font-semibold text-gray-600 text-center hover:text-primary-600 hover:bg-gray-300"
+      >
+        Profile and Settings
+      </Link>
     </aside>
   );
 }
