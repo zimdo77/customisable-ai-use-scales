@@ -1,28 +1,27 @@
 // Profile & Settings
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import SidebarNav from "@/components/SidebarNav";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import SidebarNav from '@/components/shared/SidebarNav';
 
 export default function ProfilePage() {
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleConfirm = (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      alert("Passwords do not match!");
+      alert('Passwords do not match!');
       return;
     }
-    alert("Password updated!");
+    alert('Password updated!');
   };
 
   return (
     <div className="flex min-h-screen">
-        
       {/* Main Content */}
       <main className="flex-1 bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-6">
         <div className="w-full max-w-lg">

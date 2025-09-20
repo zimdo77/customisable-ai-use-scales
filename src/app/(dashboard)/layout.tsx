@@ -1,5 +1,5 @@
 // uses <SidebarNav/> (Home, CUS Library, USL Library, Profile)
-import SidebarNav from "@/components/SidebarNav";
+import SidebarNav from '@/components/shared/SidebarNav';
 
 export default function ProfileLayout({
   children,
