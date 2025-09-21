@@ -7,12 +7,9 @@ export default function ProfileLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
+    <div>
       <SidebarNav />
-
-      {/* Page content */}
-      <main className="flex-1">{children}</main>
+      <main className="ml-56 min-h-screen">{children}</main>
     </div>
   );
 }
