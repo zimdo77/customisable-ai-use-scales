@@ -39,10 +39,10 @@ export default function SidebarNav() {
   };
 
   return (
-    <aside className="w-56 h-screen fixed left-0 top-0 flex flex-col justify-between bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
+    <aside className="w-56 h-screen fixed flex flex-col justify-between bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       {/* Header */}
       <div>
-        <div className="flex items-center gap-2 p-5 border-b border-sidebar-border">
+        <div className="flex items-center p-5 border-b border-sidebar-border">
           <span className="text-lg font-bold tracking-tight">
             Customisable <br /> AI Use Scales
           </span>
