@@ -13,6 +13,7 @@ import { Eye, EyeOff, Mail } from 'lucide-react';
 
 export default function LoginPage() {
   // Code here
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -85,14 +86,16 @@ export default function LoginPage() {
               <span className="w-full border-t"></span>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">
-                Or Continue With
-              </span>
+              <span className="bg-white px-2 text-muted-foreground">Or</span>
             </div>
           </div>
-          <Button variant="outline" className="w-full">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => router.push('/signup')}
+          >
             <Mail className="mr-2 h-4 2-4"></Mail>
-            Google
+            Create New Account
           </Button>
         </div>
       </motion.div>
