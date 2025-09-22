@@ -1,4 +1,4 @@
-export type RubricStatus = "active" | "archived" | "update-available";
+export type RubricStatus = "active" | "update-available";
 
 export interface Rubric {
   id: string;
@@ -12,4 +12,15 @@ export interface Rubric {
   status: RubricStatus;
   ownerId: string;            // current user id (fake for now)
   shared?: boolean;
+}
+
+export interface RubricTemplate {
+  id: string;
+  name: string;
+  version: number;
+  subjectCode: string;
+  rowCount: number;
+  description?: string;
+  updatedAt: string;
+  createdBy: string;
 }

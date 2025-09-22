@@ -2,13 +2,16 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import ConfirmDeleteDialog from './confirm-delete-dialog';
-import RubricsToolbar from './rubrics-toolbar';
-import RubricCard from './rubric-card';
-import RubricTable from './rubric-table';
+import ConfirmDeleteDialog from './ConfirmDeleteDialog';
+import RubricsToolbar from './RubricsToolbar';
+import RubricCard from './RubricCard';
+import RubricTable from './RubricTable';
+import CreateRubricModal, { CreateRubricPayload } from './CreateRubricModal';
+import { sampleTemplates } from '@/lib/mock';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Rubric } from '@/lib/types';
+import { toast } from 'sonner';
 
 type SortKey = 'updated' | 'name' | 'subject';
 type FilterKey = 'all' | 'mine' | 'shared' | 'updates';
@@ -27,6 +30,7 @@ export default function RubricsHomeClient({ initialData }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [deleteTarget, setDeleteTarget] = React.useState<Rubric | null>(null);
   const lastDeletedRef = React.useRef<Rubric | null>(null);
+  const [createOpen, setCreateOpen] = React.useState(false);
 
   // Simulate loading
   React.useEffect(() => {
@@ -35,6 +39,7 @@ export default function RubricsHomeClient({ initialData }: Props) {
     return () => clearTimeout(t);
   }, []);
 
+  // Display filtered, searched, and sorted rubrics
   const filtered = React.useMemo(() => {
     let rows = [...rubrics];
 
@@ -72,7 +77,7 @@ export default function RubricsHomeClient({ initialData }: Props) {
     return rows;
   }, [rubrics, query, sort, filter]);
 
-  // Actions (frontend only)
+  // Duplicate rubric handler
   const handleDuplicate = (id: string) => {
     const src = rubrics.find((r) => r.id === id);
     if (!src) return;
@@ -87,6 +92,7 @@ export default function RubricsHomeClient({ initialData }: Props) {
     setRubrics((prev) => [copy, ...prev]);
   };
 
+  // Export rubric handler (JSON - change this to XLSX later)
   const handleExport = (id: string) => {
     const r = rubrics.find((x) => x.id === id);
     if (!r) return;
@@ -103,20 +109,74 @@ export default function RubricsHomeClient({ initialData }: Props) {
     URL.revokeObjectURL(url);
   };
 
+  // Request delete: open confirmation dialog for rubric
   const requestDelete = (id: string) => {
     const item = rubrics.find((r) => r.id === id) || null;
     setDeleteTarget(item);
   };
 
+  // Confirm delete: remove rubric from state
   const confirmDelete = () => {
     if (!deleteTarget) return;
     const deleted = deleteTarget;
     lastDeletedRef.current = deleted;
     setRubrics((prev) => prev.filter((r) => r.id !== deleted.id));
     setDeleteTarget(null);
+    toast.success('Rubric deleted', {
+      description: `"${deleted.name}" was removed.`,
+    });
   };
 
+  // Total rubrics count
   const totalCount = rubrics.length;
+
+  // Create rubric handler
+  const handleCreate = (payload: CreateRubricPayload) => {
+    // purely frontend demo: add a new item locally
+    const now = new Date().toISOString();
+
+    if (payload.mode === 'scratch') {
+      // from scratch
+      const newItem: Rubric = {
+        id: `rb-${Date.now()}`,
+        name: payload.name,
+        subjectCode: payload.subjectCode,
+        rowCount: payload.initialRows,
+        version: 1,
+        updatedAt: now,
+        status: 'active',
+        ownerId: 'me',
+        shared: false,
+      };
+      setRubrics((prev) => [newItem, ...prev]);
+      toast.success('Rubric created', { description: `Started from scratch` });
+      return;
+    }
+
+    // from template
+    const newItem: Rubric = {
+      id: `rb-${Date.now()}`,
+      name: payload.name,
+      subjectCode: payload.subjectCode,
+      rowCount:
+        sampleTemplates.find((t) => t.id === payload.templateId)?.rowCount ??
+        10,
+      version: 1,
+      templateId: payload.templateId,
+      templateVersion: sampleTemplates.find((t) => t.id === payload.templateId)
+        ?.version,
+      updatedAt: now,
+      status: 'active',
+      ownerId: 'me',
+      shared: false,
+    };
+    setRubrics((prev) => [newItem, ...prev]);
+    toast.success('Rubric created', {
+      description: payload.linkForUpdates
+        ? 'Linked to template for future updates.'
+        : 'Copied from template (not linked).',
+    });
+  };
 
   return (
     <div className="relative min-h-screen">
@@ -130,6 +190,7 @@ export default function RubricsHomeClient({ initialData }: Props) {
 
       {/* Main content */}
       <div className="flex flex-col pt-33 px-10 gap-8">
+        {/* Toolbar for search, filter, sort, view, and create */}
         <RubricsToolbar
           query={query}
           onQuery={setQuery}
@@ -140,6 +201,7 @@ export default function RubricsHomeClient({ initialData }: Props) {
           view={view}
           onView={setView}
           totalCount={totalCount}
+          onCreateRubric={() => setCreateOpen(true)}
         />
 
         {/* Loading state */}
@@ -151,7 +213,7 @@ export default function RubricsHomeClient({ initialData }: Props) {
           </div>
         )}
 
-        {/* Empty state */}
+        {/* Empty state: no rubrics match filters */}
         {!loading && filtered.length === 0 && (
           <div className="border rounded-2xl p-10 text-center">
             <h3 className="text-lg font-medium">
@@ -161,14 +223,13 @@ export default function RubricsHomeClient({ initialData }: Props) {
               Try adjusting search or create a new rubric from scratch or a
               template.
             </p>
-            <Button asChild className="mt-4">
-              {/* Implement modal here */}
-              <Link href="/rubrics/new">Create rubric</Link>
+            <Button className="mt-4" onClick={() => setCreateOpen(true)}>
+              Create rubric
             </Button>
           </div>
         )}
 
-        {/* Data */}
+        {/* Data: grid or table view */}
         {!loading &&
           filtered.length > 0 &&
           (view === 'grid' ? (
@@ -188,12 +249,21 @@ export default function RubricsHomeClient({ initialData }: Props) {
               <RubricTable rows={filtered} onDeleteRequest={requestDelete} />
             </div>
           ))}
-        {/* Confirm Delete */}
+
+        {/* Confirm Delete Dialog */}
         <ConfirmDeleteDialog
           open={!!deleteTarget}
           onOpenChange={(v) => !v && setDeleteTarget(null)}
           itemName={deleteTarget?.name}
           onConfirm={confirmDelete}
+        />
+
+        {/* Create Rubric Modal */}
+        <CreateRubricModal
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          templates={sampleTemplates}
+          onCreate={handleCreate}
         />
       </div>
     </div>
