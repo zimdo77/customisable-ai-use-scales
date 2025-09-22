@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import TemplateCombobox from './RubricTemplateCombobox';
+import TemplateCombobox from './TemplateCombobox';
 import { RubricTemplate } from '@/lib/types';
 
 type Mode = 'scratch' | 'template';

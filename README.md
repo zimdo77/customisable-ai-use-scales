@@ -7,7 +7,7 @@ src/
     (dashboard)/
       layout.tsx           # sidebar: Home, Rubrics, Profile (+Templates if Admin)
       my-rubrics/
-        page.tsx           # Google Drive-style “My Rubrics” list/grid + NewRubricModal
+        page.tsx           # Google Drive-style “My Rubrics” list/grid
       edit-rubric/
         [id]/
           page.tsx         # rubric editor (5 columns)
@@ -33,15 +33,18 @@ src/
     login/
       page.tsx             # magic-link form (no sidebar)
   components/
-    shared/
-      SidebarNav.tsx       # 4 tabs, active state via usePathname()
-      NewRubricModal.tsx   # scratch vs repository, choose subject/template
-      ...
+    SidebarNav.tsx         
+    MyRubrics.tsx          # Main "My Rubrics" component - includes RubricsToolbar, RubricCard, RubricTable
+    RubricsToolbar.tsx     # Consists of search bar, sort by, grid/list view option
+    RubricCard.tsx         # For grid view
+    RubricTable.tsx        # For list view
+    CreateRubricModal.tsx  # Modal for creating new rubric (from scratch or template)
+    TemplateCombobox.tsx   # Dropdown box to let users search for rubric templates 
     five-row-table/
       index.tsx            # client component, 5 editable columns
       row.tsx              # row editor
       schema.ts            # zod validation for a row
-    ui/                    # shadcn components you add
+    ui/                    # shadcn components
       ...
 ```
 
