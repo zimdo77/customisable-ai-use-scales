@@ -1,4 +1,4 @@
-import { Rubric } from './types';
+import { Rubric, RubricTemplate } from './types';
 
 export const sampleRubrics: Rubric[] = [
   {
@@ -36,7 +36,7 @@ export const sampleRubrics: Rubric[] = [
     templateId: 'tpl-200',
     templateVersion: 2,
     updatedAt: '2025-08-29T16:24:00.000Z',
-    status: 'archived',
+    status: 'active',
     ownerId: 'me',
     shared: false,
   },
@@ -65,5 +65,28 @@ export const sampleRubrics: Rubric[] = [
     status: 'active',
     ownerId: 'me',
     shared: false,
+  },
+];
+
+export const sampleTemplates: RubricTemplate[] = [
+  {
+    id: 'tpl-100',
+    name: 'Design of Algorithms (Coding Assignment Template)',
+    version: 4,
+    subjectCode: 'COMP20007',
+    rowCount: 10,
+    description:'',
+    updatedAt: '2025-09-12T10:22:00.000Z',
+    createdBy: 'admin',
+  },
+  {
+    id: 'tpl-200',
+    name: 'Computer Systems (Coding Project Template)',
+    version: 2,
+    subjectCode: 'COMP30023',
+    rowCount: 8,
+    description:'',
+    updatedAt: '2025-08-31T09:05:00.000Z',
+    createdBy: 'admin',
   },
 ];
