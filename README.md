@@ -2,12 +2,12 @@
 ```
 src/
   app/
-    page.tsx               # redirects to /home if logged in, else /login
-    layout.tsx
+    page.tsx               # redirects to /my-rubrics if logged in, else /login
+    layout.tsx             # configure fonts and Toaster
     (dashboard)/
-      layout.tsx           # sidebar: Home, Rubrics, Profile (+Templates if Admin)
+      layout.tsx           # sidebar: My Rubrics, Profile, (+Templates if Admin)
       my-rubrics/
-        page.tsx           # Google Drive-style “My Rubrics” list/grid
+        page.tsx           # Google Drive-like "My Drive" list/grid
       edit-rubric/
         [id]/
           page.tsx         # rubric editor (5 columns)
@@ -34,12 +34,12 @@ src/
       page.tsx             # magic-link form (no sidebar)
   components/
     SidebarNav.tsx         
-    MyRubrics.tsx          # Main "My Rubrics" component - includes RubricsToolbar, RubricCard, RubricTable
-    RubricsToolbar.tsx     # Consists of search bar, sort by, grid/list view option
-    RubricCard.tsx         # For grid view
-    RubricTable.tsx        # For list view
-    CreateRubricModal.tsx  # Modal for creating new rubric (from scratch or template)
-    TemplateCombobox.tsx   # Dropdown box to let users search for rubric templates 
+    MyRubrics.tsx          # main "My Rubrics" component - includes RubricsToolbar, RubricCard, RubricTable
+    RubricsToolbar.tsx     # consists of search bar, sort by, grid/list view option
+    RubricCard.tsx         # for grid view
+    RubricTable.tsx        # for list view
+    CreateRubricModal.tsx  # modal for creating new rubric (from scratch or template)
+    TemplateCombobox.tsx   # dropdown box to let users search for rubric templates 
     five-row-table/
       index.tsx            # client component, 5 editable columns
       row.tsx              # row editor
