@@ -9,7 +9,8 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Mail } from 'lucide-react';
+import { Eye, EyeOff, Mail, AlertCircle} from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginPage() {
   // Code here
@@ -17,6 +18,48 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  // Sign-in handler
+  const handleSignIn = async (e: FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password});
+      
+      if (error) {
+        setError(error.message);
+        return;
+      } else if (data.user) {
+
+      // Get data from profile table
+      const { data: profileData, error: profileError } = await supabase
+        .from('profile')
+        .select('name, role')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profileError) {
+        setError(profileError.message);
+      } else {
+        const name = profileData.name;
+        const role = profileData.role;
+
+        router.push('my-rubrics');
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    setError('Unexpected error occurred. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+  };
 
   return (
     // This div basically centers everything with a light grey background
@@ -39,8 +82,13 @@ export default function LoginPage() {
               Please login to view your templates
             </p>
           </div>
-
-          <form className="space-y-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <form onSubmit={handleSignIn} className="space-y-4">
             <div className="space-y-2">
               {/* htmlFor="email" links this label to id=email */}
               <Label htmlFor="email">Email</Label>
@@ -52,6 +100,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={loading}
               ></Input>
             </div>
             <div className="space-y-2">
@@ -60,10 +109,12 @@ export default function LoginPage() {
               <div className="relative">
                 <Input
                   id="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Please enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={loading}
                 ></Input>
                 {/* Creating the eye icon */}
                 <button
@@ -76,8 +127,8 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
-              Sign in
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
 
