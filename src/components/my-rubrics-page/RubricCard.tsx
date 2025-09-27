@@ -34,7 +34,9 @@ export default function RubricCard({
   onDeleteRequest,
 }: Props) {
   const statusBadge =
-    item.status === 'update-available' ? <Badge>Update available</Badge> : null;
+    item.status === 'update-available' ? (
+      <Badge className="animate-pulse">Template update available</Badge>
+    ) : null;
 
   return (
     <Card className="flex flex-col min-w-[300px] min-h-[200px] hover:cursor-pointer hover:bg-muted">

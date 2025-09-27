@@ -103,7 +103,6 @@ export default function RubricEditorClient({
             onChange={(e) => setSubject(e.target.value.toUpperCase())}
           />
           <div className="ml-auto flex items-center gap-2">
-            {dirty && <Badge variant="outline">Unsaved</Badge>}
             <Button variant="outline" onClick={handleCancel}>
               Cancel
             </Button>
@@ -116,12 +115,12 @@ export default function RubricEditorClient({
       <div className="flex mx-auto text-sm max-w-screen-xl px-5 text-muted-foreground">
         <div className="flex items-center gap-5">
           <div className="flex flex-row gap-2">
-            <Badge>Rubric ID</Badge>
+            <Badge variant="outline">Rubric ID</Badge>
             <code>{rubric.id}</code>
           </div>
           <Separator orientation="vertical" className="h-4" />
           <div className="flex flex-row gap-2">
-            <Badge>Template</Badge>
+            <Badge variant="outline">Template</Badge>
             {rubric.templateId ? (
               <span>
                 <code>{rubric.templateId}</code> (rubric on v
@@ -130,29 +129,28 @@ export default function RubricEditorClient({
                 )
               </span>
             ) : (
-              <span className="">
-                N/A
-              </span>
+              <span className="">N/A</span>
             )}
           </div>
           <Separator orientation="vertical" className="h-4" />
           <div className="flex flex-row gap-2">
-            <Badge>Rows</Badge>
+            <Badge variant="outline">Rows</Badge>
             <span>{rubric.rowCount}</span>
           </div>
           <Separator orientation="vertical" className="h-4" />
           <div className="flex flex-row gap-2">
-            <Badge>Version</Badge>
+            <Badge variant="outline">Version</Badge>
             <span>v{rubric.version}</span>
           </div>
         </div>
         {hasTemplateUpdates && (
-          <Button
+          <Badge
+            variant="default"
             onClick={() => setUpdatesOpen(true)}
-            className="cursor-pointer ml-auto"
+            className="ml-auto animate-pulse"
           >
-            Template updates available. Click here to update.
-          </Button>
+            Template updates available. Click to update.
+          </Badge>
         )}
       </div>
 
@@ -162,6 +160,7 @@ export default function RubricEditorClient({
           rows={rubric.rows}
           onChange={onRowsChange}
           templateRows={linkedTemplate?.rows ?? []}
+          dirty={dirty}
         />
       </div>
 

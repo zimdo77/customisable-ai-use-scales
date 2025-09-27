@@ -27,6 +27,7 @@ interface Props {
   rows: RubricRow[];
   onChange: (rows: RubricRow[]) => void;
   templateRows: TemplateRow[];
+  dirty: boolean;
 }
 
 function findTemplateRow(trs: TemplateRow[], id?: string | null) {
@@ -37,6 +38,7 @@ export default function RubricRowsTable({
   rows,
   onChange,
   templateRows,
+  dirty,
 }: Props) {
   const update = (i: number, patch: Partial<RubricRow>) => {
     const next = rows.slice();
@@ -85,8 +87,8 @@ export default function RubricRowsTable({
   return (
     <div>
       <div className="rounded-2xl border overflow-x-auto">
-        <div className="p-3 flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
+        <div className="p-3 flex justify-between items-center text-sm text-muted-foreground">
+          <div className="">
             Click any cell to type. Use
             <span className="mx-1">
               <Badge variant="secondary">
@@ -95,6 +97,7 @@ export default function RubricRowsTable({
             </span>
             to save.
           </div>
+          <div>{dirty && <div>Unsaved changes...</div>}</div>
         </div>
         <Table className="w-full table-fixed border">
           <TableHeader>
@@ -118,9 +121,7 @@ export default function RubricRowsTable({
                   className="divide-x divide-border h-[300px]"
                 >
                   <TableCell className="py-3 text-center align-top relative text-xs text-muted-foreground">
-                    <div className="pb-3">
-                      {i + 1}
-                    </div>
+                    <div className="pb-3">{i + 1}</div>
                     {linked && <div>(linked)</div>}
                   </TableCell>
                   {/* editable cells */}
@@ -212,7 +213,12 @@ export default function RubricRowsTable({
         </Table>
       </div>
       <div className="mt-6 mb-20">
-        <Button className="w-full" size="sm" onClick={() => addRow()}>
+        <Button
+          variant="outline"
+          className="w-full"
+          size="sm"
+          onClick={() => addRow()}
+        >
           <Plus className="size-4" /> Add row
         </Button>
       </div>
@@ -223,7 +229,7 @@ export default function RubricRowsTable({
 function CellChanged() {
   return (
     <Badge
-      variant="default"
+      variant="secondary"
       className="absolute left-2 bottom-2 border-border pointer-events-none"
     >
       {' '}

@@ -101,8 +101,8 @@ export default function RubricsToolbar({
           </TabsList>
         </Tabs>
         <Button onClick={onCreateRubric}>
-            <Plus className="h-4 w-4" />
-            Create rubric
+          <Plus className="h-4 w-4" />
+          Create rubric
         </Button>
       </div>
     </div>
