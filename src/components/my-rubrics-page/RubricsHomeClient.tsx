@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 import RubricsToolbar from './RubricsToolbar';
 import RubricCard from './RubricCard';
@@ -10,7 +9,7 @@ import CreateRubricModal, { CreateRubricPayload } from './CreateRubricModal';
 import { sampleTemplates } from '@/lib/mock';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Rubric } from '@/lib/types';
+import { Rubric, RubricRow } from '@/lib/types';
 import { toast } from 'sonner';
 
 type SortKey = 'updated' | 'name' | 'subject';
@@ -81,6 +80,14 @@ export default function RubricsHomeClient({ initialData }: Props) {
   const handleDuplicate = (id: string) => {
     const src = rubrics.find((r) => r.id === id);
     if (!src) return;
+
+    // deep copy rows with fresh IDs
+    const rows = src.rows.map((row) => ({
+      ...row,
+      id: `row-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, // new unique id
+      // keep templateRowId if it was linked, so updates still work
+    }));
+
     const copy: Rubric = {
       ...src,
       id: `dup-${Date.now()}`,
@@ -88,7 +95,10 @@ export default function RubricsHomeClient({ initialData }: Props) {
       updatedAt: new Date().toISOString(),
       status: 'active',
       shared: false,
+      rows,
+      rowCount: rows.length,
     };
+
     setRubrics((prev) => [copy, ...prev]);
   };
 
@@ -137,6 +147,9 @@ export default function RubricsHomeClient({ initialData }: Props) {
 
     if (payload.mode === 'scratch') {
       // from scratch
+      const rows = Array.from({ length: payload.initialRows }, (_, i) =>
+        makeBlankRow(i),
+      );
       const newItem: Rubric = {
         id: `rb-${Date.now()}`,
         name: payload.name,
@@ -147,36 +160,63 @@ export default function RubricsHomeClient({ initialData }: Props) {
         status: 'active',
         ownerId: 'me',
         shared: false,
+        rows,
       };
       setRubrics((prev) => [newItem, ...prev]);
       toast.success('Rubric created', { description: `Started from scratch` });
       return;
     }
 
-    // from template
-    const newItem: Rubric = {
-      id: `rb-${Date.now()}`,
-      name: payload.name,
-      subjectCode: payload.subjectCode,
-      rowCount:
-        sampleTemplates.find((t) => t.id === payload.templateId)?.rowCount ??
-        10,
-      version: 1,
-      templateId: payload.templateId,
-      templateVersion: sampleTemplates.find((t) => t.id === payload.templateId)
-        ?.version,
-      updatedAt: now,
-      status: 'active',
-      ownerId: 'me',
-      shared: false,
-    };
-    setRubrics((prev) => [newItem, ...prev]);
-    toast.success('Rubric created', {
-      description: payload.linkForUpdates
-        ? 'Linked to template for future updates.'
-        : 'Copied from template (not linked).',
-    });
+    if (payload.mode === 'template') {
+      // from template
+      const tpl = sampleTemplates.find((t) => t.id === payload.templateId);
+      const rows = tpl
+        ? tpl.rows.map((tr) => ({
+            id: `row-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            templateRowId: payload.linkForUpdates ? tr.id : undefined,
+            task: tr.task,
+            aiUseLevel: tr.aiUseLevel,
+            instructions: tr.instructions,
+            examples: tr.examples,
+            acknowledgement: tr.acknowledgement,
+          }))
+        : [];
+
+      const newItem: Rubric = {
+        id: `rb-${Date.now()}`,
+        name: payload.name,
+        subjectCode: payload.subjectCode,
+        rowCount:
+          sampleTemplates.find((t) => t.id === payload.templateId)?.rowCount ??
+          10,
+        version: 1,
+        templateId: payload.templateId,
+        templateVersion: sampleTemplates.find(
+          (t) => t.id === payload.templateId,
+        )?.version,
+        updatedAt: now,
+        status: 'active',
+        ownerId: 'me',
+        shared: false,
+        rows,
+      };
+      setRubrics((prev) => [newItem, ...prev]);
+      toast.success('Rubric created', {
+        description: payload.linkForUpdates
+          ? 'Linked to template for future updates.'
+          : 'Copied from template (not linked).',
+      });
+    }
   };
+
+  const makeBlankRow = (index: number): RubricRow => ({
+    id: `row-${Date.now()}-${index}`,
+    task: '',
+    aiUseLevel: '',
+    instructions: '',
+    examples: '',
+    acknowledgement: '',
+  });
 
   return (
     <div className="relative min-h-screen">
