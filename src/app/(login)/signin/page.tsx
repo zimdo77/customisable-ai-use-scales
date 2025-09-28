@@ -1,9 +1,9 @@
 // magic-link login, no siderbar
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter} from 'next/navigation';
 
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,18 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [callbackError, setCallbackError] = useState('');
+  const params = new URLSearchParams(window.location.hash.substring(1));
+
+  // Redirected from signup page
+  
+  const signupSuccess = params.get('signup') === 'success';
+  
+  const callbackErrorSearch = params.get('error');
+  useEffect(() => {
+    setCallbackError(callbackErrorSearch || '');
+  }, [callbackErrorSearch]);
+  const callbackErrorDescription = params.get('error_description');
 
   // Sign-in handler
   const handleSignIn = async (e: FormEvent) => {
@@ -82,6 +94,27 @@ export default function LoginPage() {
               Please login to view your templates
             </p>
           </div>
+          {signupSuccess && (
+            <Alert>
+              <AlertDescription>
+                Sign-Up Successful! Please sign in.
+              </AlertDescription>
+            </Alert>
+          )}
+          {callbackError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {callbackError}
+              {callbackErrorDescription && (
+                <>
+                  <br />
+                  <span className="text-sm text-muted-foreground">{callbackErrorDescription}</span>
+                </>
+              )}
+            </AlertDescription>
+          </Alert>
+        )} 
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />

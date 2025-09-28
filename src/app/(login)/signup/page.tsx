@@ -72,7 +72,7 @@ export default function SignUpPage() {
           setConfirmPassword('');
         } else {
           // Don't need email confirmation
-          router.push('/signin');
+          router.push('/signin#signup=success');
         }
       }
     } catch (err) {
