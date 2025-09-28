@@ -21,17 +21,18 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [callbackError, setCallbackError] = useState('');
-  const params = new URLSearchParams(window.location.hash.substring(1));
+  const [callbackErrorDescription, setCallbackErrorDescription] = useState('');
+  const [signupSuccess, setSignupSuccess] = useState(false);
 
-  // Redirected from signup page
-  
-  const signupSuccess = params.get('signup') === 'success';
-  
-  const callbackErrorSearch = params.get('error');
+  // Redirected from signup page/errors
   useEffect(() => {
-    setCallbackError(callbackErrorSearch || '');
-  }, [callbackErrorSearch]);
-  const callbackErrorDescription = params.get('error_description');
+    if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.hash.substring(1));
+      setSignupSuccess(params.get('signup') === 'success');
+      setCallbackError(params.get('error') || '');
+      setCallbackErrorDescription(params.get('error_description') || '');
+    }
+  }, []);
 
   // Sign-in handler
   const handleSignIn = async (e: FormEvent) => {
@@ -48,29 +49,25 @@ export default function LoginPage() {
         setError(error.message);
         return;
       } else if (data.user) {
-
       // Get data from profile table
-      const { data: profileData, error: profileError } = await supabase
-        .from('profile')
-        .select('name, role')
-        .eq('id', data.user.id)
-        .single();
-
-      if (profileError) {
-        setError(profileError.message);
-      } else {
-        const name = profileData.name;
-        const role = profileData.role;
-
-        router.push('my-rubrics');
+        const { data: profileData, error: profileError } = await supabase
+          .from('profile')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+        if (profileError) {
+          setError(profileError.message || 'Could not fetch profile.');
+          return;
+        } else {
+           router.push('my-rubrics');
+        }
       }
+    } catch (err) {
+      console.error(err);
+      setError('Unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error(err);
-    setError('Unexpected error occurred. Please try again.');
-  } finally {
-    setLoading(false);
-  }
   };
 
   return (
@@ -96,7 +93,7 @@ export default function LoginPage() {
           </div>
           {signupSuccess && (
             <Alert>
-              <AlertDescription>
+              <AlertDescription className="text-black">
                 Sign-Up Successful! Please sign in.
               </AlertDescription>
             </Alert>
