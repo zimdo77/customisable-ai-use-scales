@@ -5,9 +5,11 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "feat/automated-testing-1" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main",  "feat/automated-testing-1" ]
+  workflow_dispatch:
+    branches: ["main",  "feat/automated-testing-1"]
 
 jobs:
   build:
