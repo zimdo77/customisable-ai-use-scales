@@ -15,6 +15,7 @@ export default function SignUpPage() {
   // Code here
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -50,6 +51,10 @@ export default function SignUpPage() {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
+          // raw_user_meta_data
+          data: {
+            full_name: name,
+          },
         },
       });
 
@@ -62,11 +67,12 @@ export default function SignUpPage() {
           setError('');
           // Clear form
           setEmail('');
+          setName('');
           setPassword('');
           setConfirmPassword('');
         } else {
           // Don't need email confirmation
-          router.push('/login');
+          router.push('/signin#signup=success');
         }
       }
     } catch (err) {
@@ -110,6 +116,19 @@ export default function SignUpPage() {
             </Alert>
           )}
           <form onSubmit={handleSignUp} className="space-y-4">
+            <div className="space-y-2">
+              {/* htmlFor="name" links this label to id=name */}
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Please enter your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                disabled={loading}
+              ></Input>
+            </div>
             <div className="space-y-2">
               {/* htmlFor="email" links this label to id=email */}
               <Label htmlFor="email">Email</Label>
