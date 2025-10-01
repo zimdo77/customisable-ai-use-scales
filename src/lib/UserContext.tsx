@@ -35,6 +35,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
           email: data.user.email!,
           name: data.user.user_metadata.full_name,
           role: data.user.user_metadata.role,
+          avatar: data.user.user_metadata.avatar,
         });
       }
       setLoading(false);
