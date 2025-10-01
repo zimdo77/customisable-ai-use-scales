@@ -71,44 +71,20 @@ export default function SidebarNav() {
 
       {/* Footer */}
       <div className="px-2 pb-5">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="w-full flex items-center gap-3 justify-start p-3"
-            >
-              <Avatar className="w-8 h-8">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback>{user.name[0]}</AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-bold">{user.name}</span>
-              <ChevronUp size={16} className="ml-auto" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="top" align="end" className="w-full">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/profile" className="flex items-center gap-2">
-                <User size={16} /> Profile
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/profile" className="flex items-center gap-2">
-                <Settings size={16} /> Settings
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive flex items-center gap-2"
-              onClick={() => {
-                // Add logout logic here
-              }}
-            >
-              <LogOut size={16} /> Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          asChild
+          variant="ghost"
+          className="w-full flex items-center gap-3 justify-start p-3"
+        >
+          <Link href="/profile">
+            <Avatar className="w-8 h-8">
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback>{user.name}</AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-bold">{user.name}</span>
+            <Settings size={16} />
+          </Link>
+        </Button>
       </div>
     </aside>
   );

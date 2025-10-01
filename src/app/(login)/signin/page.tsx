@@ -48,20 +48,9 @@ export default function LoginPage() {
       if (error) {
         setError(error.message);
         return;
-      } else if (data.user) {
-      // Get data from profile table
-        const { data: profileData, error: profileError } = await supabase
-          .from('profile')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-        if (profileError) {
-          setError(profileError.message || 'Could not fetch profile.');
-          return;
-        } else {
+        } else{
            router.push('my-rubrics');
         }
-      }
     } catch (err) {
       console.error(err);
       setError('Unexpected error occurred. Please try again.');

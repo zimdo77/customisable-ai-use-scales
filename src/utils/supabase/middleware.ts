@@ -30,7 +30,23 @@ export async function updateSession(request: NextRequest) {
   );
 
   // refreshing the auth token
-  await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser()
+  if ((error || !data?.user) && (
+  !request.nextUrl.pathname.startsWith('/login') &&
+    !request.nextUrl.pathname.startsWith('/auth') &&
+    !request.nextUrl.pathname.startsWith('/signup'))) {
+    // no user, redirect to login
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
+  } else if (data?.user) {
+    // user exists, get role
+    console.log(data.user);
+    const name = (data.user.user_metadata).get('full_name');
+    const role = (data.user.user_metadata).get('role');
+    supabaseResponse.cookies.set('user_name', name);
+    supabaseResponse.cookies.set('user_role', role);
+  }
 
   return supabaseResponse;
 }
