@@ -383,7 +383,7 @@ export default function RubricsHomeClient({ initialData }: Props) {
             </div>
           ) : (
             <div className="rounded-2xl border">
-              <RubricTable rows={filtered} onDeleteRequest={requestDelete} />
+              <RubricTable rows={filtered} onExport={handleExport} onDeleteRequest={requestDelete} />
             </div>
           ))}
 
