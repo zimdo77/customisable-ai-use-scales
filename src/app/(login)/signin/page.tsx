@@ -9,14 +9,53 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Mail } from 'lucide-react';
+import { Eye, EyeOff, Mail, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginPage() {
   // Code here
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  // Sign in handler
+  const handleSignIn = async (e: FormEvent) => {
+    e.preventDefault();
+
+    // Reset error state
+    setError('');
+    setLoading(true);
+
+    try {
+      // Sign in with Supabase
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+      if (signInError) {
+        setError(signInError.message);
+        return;
+      }
+
+      if (data.user) {
+        // Successful sign in!
+        console.log('Sign in successful:', data.user.email);
+
+        router.push('/loginTest');
+      }
+    } catch (err) {
+      console.error('Sign in error:', err);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     // This div basically centers everything with a light grey background
@@ -40,7 +79,15 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form className="space-y-4">
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <form onSubmit={handleSignIn} className="space-y-4">
             <div className="space-y-2">
               {/* htmlFor="email" links this label to id=email */}
               <Label htmlFor="email">Email</Label>
@@ -60,6 +107,7 @@ export default function LoginPage() {
               <div className="relative">
                 <Input
                   id="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Please enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
