@@ -9,12 +9,14 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Mail, AlertCircle} from 'lucide-react';
+
+import { Eye, EyeOff, Mail, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginPage() {
   // Code here
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -37,34 +39,33 @@ export default function LoginPage() {
   // Sign-in handler
   const handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
+  
     setError('');
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password});
-      
-      if (error) {
-        setError(error.message);
+
+      // Sign in with Supabase
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+      if (signInError) {
+        setError(signInError.message);
         return;
-      } else if (data.user) {
-      // Get data from profile table
-        const { data: profileData, error: profileError } = await supabase
-          .from('profile')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-        if (profileError) {
-          setError(profileError.message || 'Could not fetch profile.');
-          return;
-        } else {
-           router.push('my-rubrics');
-        }
+      }
+
+      if (data.user) {
+        // Successful sign in!
+        console.log('Sign in successful:', data.user.email);
+
+        router.push('/loginTest');
       }
     } catch (err) {
-      console.error(err);
-      setError('Unexpected error occurred. Please try again.');
+      console.error('Sign in error:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -118,6 +119,7 @@ export default function LoginPage() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
+
           <form onSubmit={handleSignIn} className="space-y-4">
             <div className="space-y-2">
               {/* htmlFor="email" links this label to id=email */}
