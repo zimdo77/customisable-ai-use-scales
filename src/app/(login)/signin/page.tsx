@@ -1,14 +1,15 @@
 // magic-link login, no siderbar
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter} from 'next/navigation';
 
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
 import { Eye, EyeOff, Mail, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -21,16 +22,29 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [callbackError, setCallbackError] = useState('');
+  const [callbackErrorDescription, setCallbackErrorDescription] = useState('');
+  const [signupSuccess, setSignupSuccess] = useState(false);
 
-  // Sign in handler
+  // Redirected from signup page/errors
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.hash.substring(1));
+      setSignupSuccess(params.get('signup') === 'success');
+      setCallbackError(params.get('error') || '');
+      setCallbackErrorDescription(params.get('error_description') || '');
+    }
+  }, []);
+
+  // Sign-in handler
   const handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
-
-    // Reset error state
+  }
     setError('');
     setLoading(true);
 
     try {
+
       // Sign in with Supabase
       const { data, error: signInError } =
         await supabase.auth.signInWithPassword({
@@ -78,8 +92,27 @@ export default function LoginPage() {
               Please login to view your templates
             </p>
           </div>
-
-          {/* Error Alert */}
+          {signupSuccess && (
+            <Alert>
+              <AlertDescription className="text-black">
+                Sign-Up Successful! Please sign in.
+              </AlertDescription>
+            </Alert>
+          )}
+          {callbackError && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {callbackError}
+              {callbackErrorDescription && (
+                <>
+                  <br />
+                  <span className="text-sm text-muted-foreground">{callbackErrorDescription}</span>
+                </>
+              )}
+            </AlertDescription>
+          </Alert>
+        )} 
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -99,6 +132,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={loading}
               ></Input>
             </div>
             <div className="space-y-2">
@@ -112,6 +146,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={loading}
                 ></Input>
                 {/* Creating the eye icon */}
                 <button
@@ -124,8 +159,8 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
-              Sign in
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
 

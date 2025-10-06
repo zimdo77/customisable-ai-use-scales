@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 export default function SignUpPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -84,13 +85,14 @@ export default function SignUpPage() {
 
           // Clear form
           setEmail('');
+          setName('');
           setPassword('');
           setConfirmPassword('');
         } else {
           // User doesn't need email confirmation
           // The trigger has already created their profile
           // When they sign in, the JWT will contain their role
-          router.push('/signin');
+          router.push('/signin#signup=success');
         }
       }
     } catch (err) {
@@ -147,6 +149,20 @@ export default function SignUpPage() {
           <div className="space-y-4">
             {/* Email Field */}
             <div className="space-y-2">
+              {/* htmlFor="name" links this label to id=name */}
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Please enter your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                disabled={loading}
+              ></Input>
+            </div>
+            <div className="space-y-2">
+              {/* htmlFor="email" links this label to id=email */}
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"

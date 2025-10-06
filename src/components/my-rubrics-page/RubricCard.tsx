@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,23 +10,30 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical, Pencil, Copy, Download, Trash } from 'lucide-react';
+import { MoreVertical, Download, Trash } from 'lucide-react';
 import { Rubric } from '@/lib/types';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface Props {
   item: Rubric;
-  onDuplicate: (id: string) => void;
   onExport: (id: string) => void;
   onDeleteRequest: (id: string) => void;
 }
 
-export default function RubricCard({ item, onDuplicate, onExport, onDeleteRequest }: Props) {
+export default function RubricCard({ item, onExport, onDeleteRequest }: Props) {
+  const router = useRouter();
   const statusBadge =
-    item.status === 'update-available' ? <Badge>Update available</Badge> : null;
+    item.status === 'update-available' ? (
+      <Badge className="animate-pulse">Template update available</Badge>
+    ) : null;
 
   return (
-    <Card className="flex flex-col min-w-[300px]">
+    <Card
+      className="flex flex-col min-w-[300px] min-h-[200px] hover:bg-muted"
+      onClick={() => router.push(`/edit-rubric/${item.id}`)}
+      tabIndex={0}
+      role="button"
+    >
       <CardHeader className="flex flex-row items-start justify-between space-y-0">
         <div>
           <CardTitle className="text-base">{item.name}</CardTitle>
@@ -45,7 +46,6 @@ export default function RubricCard({ item, onDuplicate, onExport, onDeleteReques
           </div>
           <div className="mt-2 flex gap-2">{statusBadge}</div>
         </div>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="More">
@@ -53,25 +53,28 @@ export default function RubricCard({ item, onDuplicate, onExport, onDeleteReques
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/rubrics/${item.id}/edit`}>
-                <Pencil className="mr-2 h-4 w-4" /> Edit
-              </Link>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                onExport(item.id);
+              }}
+            >
+              <Download className="mr-2 h-4 w-4" /> Export (.xlsx)
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDuplicate(item.id)}>
-              <Copy className="mr-2 h-4 w-4" /> Duplicate
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onExport(item.id)}>
-              <Download className="mr-2 h-4 w-4" /> Export (.json)
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDeleteRequest(item.id)}>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteRequest(item.id);
+              }}
+            >
               <Trash className="mr-2 h-4 w-4" /> Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-
-      <CardContent className="text-sm text-muted-foreground">
+      <CardContent className="text-sm text-muted-foreground mt-auto">
         {item.templateId ? (
           <p>
             Derived from template{' '}
@@ -82,12 +85,6 @@ export default function RubricCard({ item, onDuplicate, onExport, onDeleteReques
           <p>Created from scratch</p>
         )}
       </CardContent>
-
-      <CardFooter className="mt-auto">
-        <Button asChild variant="secondary" className="w-full">
-          <Link href={`/rubrics/${item.id}/edit`}>Open</Link>
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

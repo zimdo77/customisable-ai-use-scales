@@ -100,9 +100,9 @@ export default function RubricsToolbar({
             <TabsTrigger value="updates">Updates</TabsTrigger>
           </TabsList>
         </Tabs>
-        <Button onClick={onCreateRubric}>
-            <Plus className="h-4 w-4" />
-            Create rubric
+        <Button variant={'outline'} onClick={onCreateRubric}>
+          <Plus className="h-4 w-4" />
+          Create rubric
         </Button>
       </div>
     </div>
