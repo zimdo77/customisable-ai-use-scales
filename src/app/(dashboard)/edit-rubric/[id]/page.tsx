@@ -7,7 +7,8 @@ interface Params {
 }
 
 export default async function Page({ params }: Params) {
-  const rubric = await getRubricById(params.id);
+  const { id } = await params;
+  const rubric = await getRubricById(id);
   if (!rubric) return notFound();
 
   const template = rubric.templateId
