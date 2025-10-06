@@ -2,11 +2,11 @@ import { notFound } from 'next/navigation';
 import RubricEditorClient from '@/components/edit-rubric-page/RubricEditorClient';
 import { getRubricById, getTemplateById } from '@/lib/mock';
 
-interface Params {
+interface PageProps {
   params: { id: string };
 }
 
-export default async function Page({ params }: Params) {
+export default async function Page({ params }: PageProps) {
   const rubric = await getRubricById(params.id);
   if (!rubric) return notFound();
 
