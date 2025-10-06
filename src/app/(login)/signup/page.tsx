@@ -140,27 +140,14 @@ export default function SignUpPage() {
             <Alert>
               <AlertDescription>
                 Registration successful as{' '}
-                <strong>{selectedRole || 'user'}</strong>! Please check your
-                email to confirm your account.
+                <strong>{selectedRole || 'user'}</strong>Please check your email
+                to confirm your account.
               </AlertDescription>
             </Alert>
           )}
 
           <div className="space-y-4">
             {/* Email Field */}
-            <div className="space-y-2">
-              {/* htmlFor="name" links this label to id=name */}
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Please enter your full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                disabled={loading}
-              ></Input>
-            </div>
             <div className="space-y-2">
               {/* htmlFor="email" links this label to id=email */}
               <Label htmlFor="email">Email</Label>
