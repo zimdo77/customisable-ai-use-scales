@@ -39,7 +39,7 @@ export default function LoginPage() {
   // Sign-in handler
   const handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
-  }
+  
     setError('');
     setLoading(true);
 
