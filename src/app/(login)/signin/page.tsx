@@ -3,7 +3,7 @@
 
 import { FormEvent, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { useRouter} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 export default function LoginPage() {
   // Code here
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +28,7 @@ export default function LoginPage() {
   // Redirected from signup page/errors
   useEffect(() => {
     if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.hash.substring(1));
+      const params = new URLSearchParams(window.location.hash.substring(1));
       setSignupSuccess(params.get('signup') === 'success');
       setCallbackError(params.get('error') || '');
       setCallbackErrorDescription(params.get('error_description') || '');
@@ -39,12 +38,11 @@ export default function LoginPage() {
   // Sign-in handler
   const handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
-  
+
     setError('');
     setLoading(true);
 
     try {
-
       // Sign in with Supabase
       const { data, error: signInError } =
         await supabase.auth.signInWithPassword({
@@ -95,24 +93,26 @@ export default function LoginPage() {
           {signupSuccess && (
             <Alert>
               <AlertDescription className="text-black">
-                Sign-Up Successful! Please sign in.
+                Sign Up Successful! Please Confirm Email!
               </AlertDescription>
             </Alert>
           )}
           {callbackError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {callbackError}
-              {callbackErrorDescription && (
-                <>
-                  <br />
-                  <span className="text-sm text-muted-foreground">{callbackErrorDescription}</span>
-                </>
-              )}
-            </AlertDescription>
-          </Alert>
-        )} 
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                {callbackError}
+                {callbackErrorDescription && (
+                  <>
+                    <br />
+                    <span className="text-sm text-muted-foreground">
+                      {callbackErrorDescription}
+                    </span>
+                  </>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
