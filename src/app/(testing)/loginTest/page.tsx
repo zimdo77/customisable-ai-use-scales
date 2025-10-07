@@ -12,11 +12,14 @@ export default function TestRolePage() {
 
   // Use the useRole hook
   const {
+    id,
+    email,
     role,
     loading: roleLoading,
     isAdmin,
     isUser,
     error: roleError,
+    avatar,
   } = useRole();
 
   useEffect(() => {

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
+import { useRole } from '@/hooks/useRole';
 
 const defaultAvatars = [
   '/avatars/avatar1.svg',
@@ -24,9 +25,25 @@ export default function ProfilePage() {
   
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [newUsername, setNewUsername] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar || '');
   const [customAvatar, setCustomAvatar] = useState<File | null>(null);
+
+  // Use the useRole hook
+  const {
+    id,
+    email,
+    role,
+    loading: roleLoading,
+    isAdmin,
+    isUser,
+    error: roleError,
+    avatar,
+  } = useRole();
+
+  const [selectedAvatar, setSelectedAvatar] = useState(avatar || '');
+
+  if (roleLoading) return <div>Loading...</div>;
+  if (roleError) return <div>Error: {roleError}</div>;
+  if (id === null) return <div>Error: User not found.</div>;
 
   // Change Password
   const handlePassword = async (e: React.FormEvent) => {
@@ -41,24 +58,21 @@ export default function ProfilePage() {
     router.push('/signin#changed_password=true');
   };
   
-  // Change Name
-  const handleNameChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    alert('Name updated!');
-    await supabase.auth.updateUser({ data: { full_name: newUsername } });
-    setNewUsername('');
-  };
   
   // Change Avatar
   const handleAvatarSelect = async (url: string) => {
     setSelectedAvatar(url);
-    const { error } = await supabase.auth.updateUser({
-      data: { avatar: url },
-    });
+
+    const { error } = await supabase
+    .from('profiles')
+    .update({ avatar: url })
+    .eq('id', id);
     if (error) {
       console.error('Error updating avatar', error);
       alert('Could not update avatar.');
-    }
+    } else {
+    alert('Avatar updated successfully!');
+  }
   };
 
   // Delete Account
@@ -67,18 +81,12 @@ export default function ProfilePage() {
       'Are you sure? This will permanently delete your account.'
     );
     if (!confirmDelete) return;
-
-    const response = await fetch('/api/delete-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user?.id }),
-    });
-
-    if (response.ok) {
-      alert('Account deleted.');
-      router.push('/signin');
+    const { data, error } = await supabase.auth.admin.deleteUser(id);
+    if (error) {
+      alert(`Failed to delete account: ${error.message}`);
     } else {
-      alert('Failed to delete account.');
+      console.log('User deleted:', data);
+      router.push('/signin');
     }
   }
 
@@ -97,7 +105,7 @@ export default function ProfilePage() {
       <div className="flex-shrink-0 flex flex-col items-center">
             <div className="flex flex-col items-center space-y-2">
               <Avatar className="w-24 h-24 border-2 border-black">
-                <AvatarImage src={user?.avatar || selectedAvatar || defaultAvatars[0]} alt="Profile" />
+                <AvatarImage src={avatar|| selectedAvatar || defaultAvatars[0]} alt="Profile" />
                 <AvatarFallback>◎</AvatarFallback>
               </Avatar>
 
@@ -129,12 +137,9 @@ export default function ProfilePage() {
               <h1 className="text-3xl font-bold tracking-tighter">
                 Profile and Settings
               </h1>
-              <h2 className="text-xl font-semibold">
-                Welcome {user?.name || ''}!
-              </h2>
               <div className="flex flex-col items-center space-y-2">
               <Avatar className="w-24 h-24 border-2 border-black">
-                <AvatarImage src={user?.avatar || ''} alt="Profile" />
+                <AvatarImage src={avatar || ''} alt="Profile" />
                 <AvatarFallback>◎</AvatarFallback>
               </Avatar>
               <p className="text-muted-foreground">
@@ -142,22 +147,7 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            
-            {/* Change Name Form*/}
-            <form className="space-y-4" onSubmit={handleNameChange}>
-              <Input
-                type="text"
-                placeholder="New Username"
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                required
-              />
-              <Button type="submit" className="w-full">
-                Confirm
-              </Button>
-            </form>
-
-
+          
             {/* Password form */}
             <form className="space-y-4" onSubmit={handlePassword}>
               <Input
