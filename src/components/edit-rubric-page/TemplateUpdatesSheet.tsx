@@ -153,7 +153,8 @@ export default function TemplateUpdatesSheet({
                   </div>
                   <div>
                     <div className="font-semibold">
-                      Template v{template.version}
+                      Template{' '}
+                      <span className="text-chart-5">v{template.version}</span>
                     </div>
                     <Field name="Task" value={t.task} />
                     <Field name="AI Use Scale Level" value={t.aiUseLevel} />

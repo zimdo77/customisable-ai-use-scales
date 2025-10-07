@@ -3,13 +3,14 @@
 
 import { FormEvent, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { useRouter} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Mail, AlertCircle} from 'lucide-react';
+
+import { Eye, EyeOff, Mail, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginPage() {
@@ -27,7 +28,7 @@ export default function LoginPage() {
   // Redirected from signup page/errors
   useEffect(() => {
     if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.hash.substring(1));
+      const params = new URLSearchParams(window.location.hash.substring(1));
       setSignupSuccess(params.get('signup') === 'success');
       setCallbackError(params.get('error') || '');
       setCallbackErrorDescription(params.get('error_description') || '');
@@ -37,23 +38,27 @@ export default function LoginPage() {
   // Sign-in handler
   const handleSignIn = async (e: FormEvent) => {
     e.preventDefault();
+
     setError('');
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password});
-      
-      if (error) {
-        setError(error.message);
+      // Sign in with Supabase
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+      if (signInError) {
+        setError(signInError.message);
         return;
         } else{
            router.push('my-rubrics');
         }
     } catch (err) {
-      console.error(err);
-      setError('Unexpected error occurred. Please try again.');
+      console.error('Sign in error:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -83,30 +88,33 @@ export default function LoginPage() {
           {signupSuccess && (
             <Alert>
               <AlertDescription className="text-black">
-                Sign-Up Successful! Please sign in.
+                Sign Up Successful! Please Confirm Email!
               </AlertDescription>
             </Alert>
           )}
           {callbackError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {callbackError}
-              {callbackErrorDescription && (
-                <>
-                  <br />
-                  <span className="text-sm text-muted-foreground">{callbackErrorDescription}</span>
-                </>
-              )}
-            </AlertDescription>
-          </Alert>
-        )} 
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                {callbackError}
+                {callbackErrorDescription && (
+                  <>
+                    <br />
+                    <span className="text-sm text-muted-foreground">
+                      {callbackErrorDescription}
+                    </span>
+                  </>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
+
           <form onSubmit={handleSignIn} className="space-y-4">
             <div className="space-y-2">
               {/* htmlFor="email" links this label to id=email */}

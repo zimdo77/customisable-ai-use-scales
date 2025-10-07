@@ -8,17 +8,31 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Rubric } from '@/lib/types';
+import { useRouter } from 'next/navigation';
+import { Trash, MoreVertical, Download } from 'lucide-react';
 
 interface Props {
   rows: Rubric[];
+  onExport: (id: string) => void;
   onDeleteRequest: (id: string) => void;
 }
 
-export default function RubricTable({ rows, onDeleteRequest }: Props) {
+export default function RubricTable({
+  rows,
+  onExport,
+  onDeleteRequest,
+}: Props) {
+  const router = useRouter();
   return (
     <Table>
       <TableHeader>
@@ -29,17 +43,18 @@ export default function RubricTable({ rows, onDeleteRequest }: Props) {
           <TableHead>Template</TableHead>
           <TableHead>Updated</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Actions</TableHead>
+          <TableHead></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {rows.map((r) => (
-          <TableRow key={r.id}>
-            <TableCell className="font-medium">
-              <Link href={`/rubrics/${r.id}/edit`} className="hover:underline">
-                {r.name}
-              </Link>
-            </TableCell>
+          <TableRow
+            key={r.id}
+            onClick={() => router.push(`/edit-rubric/${r.id}`)}
+            tabIndex={0}
+            role="button"
+          >
+            <TableCell className="font-medium">{r.name}</TableCell>
             <TableCell>{r.subjectCode}</TableCell>
             <TableCell>{r.rowCount}</TableCell>
             <TableCell>
@@ -52,17 +67,34 @@ export default function RubricTable({ rows, onDeleteRequest }: Props) {
               )}
             </TableCell>
             <TableCell>
-              <div className="flex justify-start gap-2">
-                <Button asChild size="sm" variant="secondary">
-                  <Link href={`/rubrics/${r.id}/edit`}>Open</Link>
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => onDeleteRequest(r.id)}
-                >
-                  Delete
-                </Button>
+              <div className="flex justify-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" aria-label="More">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onExport(r.id);
+                      }}
+                    >
+                      <Download className="mr-2 h-4 w-4" /> Export (.xlsx)
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-destructive"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteRequest(r.id);
+                      }}
+                    >
+                      <Trash className="mr-2 h-4 w-4" /> Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </TableCell>
           </TableRow>

@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Rubric, RubricRow } from '@/lib/types';
 import { toast } from 'sonner';
+import * as XLSX from 'xlsx-js-style';
+import { Plus } from 'lucide-react';
 
 type SortKey = 'updated' | 'name' | 'subject';
 type FilterKey = 'all' | 'mine' | 'shared' | 'updates';
@@ -76,47 +78,138 @@ export default function RubricsHomeClient({ initialData }: Props) {
     return rows;
   }, [rubrics, query, sort, filter]);
 
-  // Duplicate rubric handler
-  const handleDuplicate = (id: string) => {
-    const src = rubrics.find((r) => r.id === id);
-    if (!src) return;
-
-    // deep copy rows with fresh IDs
-    const rows = src.rows.map((row) => ({
-      ...row,
-      id: `row-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, // new unique id
-      // keep templateRowId if it was linked, so updates still work
-    }));
-
-    const copy: Rubric = {
-      ...src,
-      id: `dup-${Date.now()}`,
-      name: `${src.name} (copy)`,
-      updatedAt: new Date().toISOString(),
-      status: 'active',
-      shared: false,
-      rows,
-      rowCount: rows.length,
-    };
-
-    setRubrics((prev) => [copy, ...prev]);
-  };
-
-  // Export rubric handler (JSON - change this to XLSX later)
+  // Export rubric handler (export to XLSX)
   const handleExport = (id: string) => {
     const r = rubrics.find((x) => x.id === id);
     if (!r) return;
-    const blob = new Blob([JSON.stringify(r, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${r.name.replace(/\s+/g, '_').toLowerCase()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+
+    // Prepare data for Excel: header + rows
+    const rubricHeaders = [
+      'Task',
+      'AI Use Level',
+      'Instructions',
+      'Examples',
+      'Acknowledgement',
+    ];
+
+    const studentHeaders = [
+      'AI Tools Used',
+      'Purpose and Usage',
+      'Key Prompts Used (if any)',
+    ];
+
+    const headerRow1 = [
+      ...rubricHeaders,
+      'Student Declaration (please complete this section)',
+      '',
+      '',
+    ];
+
+    const headerRow2 = [
+      ...Array(rubricHeaders.length).fill(''),
+      ...studentHeaders,
+    ];
+
+    const dataRows = r.rows.map((row) => [
+      row.task,
+      row.aiUseLevel,
+      row.instructions,
+      row.examples,
+      row.acknowledgement,
+      '', // AI tools used
+      '', // Purpose and usage
+      '', // Key prompts
+    ]);
+
+    const data = [headerRow1, headerRow2, ...dataRows];
+
+    // Create worksheet
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+
+    worksheet['!merges'] = [
+      ...rubricHeaders.map((_, idx) => ({
+        s: { r: 0, c: idx },
+        e: { r: 1, c: idx },
+      })),
+      {
+        s: { r: 0, c: rubricHeaders.length }, // start at first student declaration col
+        e: { r: 0, c: rubricHeaders.length + 2 }, // end at last student declaration col
+      },
+    ];
+
+    // Assign column widths (in characters)
+    worksheet['!cols'] = [
+      { wch: 56 }, // Task
+      { wch: 38 }, // AI Use Level
+      { wch: 35 }, // Instructions
+      { wch: 80 }, // Examples
+      { wch: 34 }, // Acknowledgement
+      { wch: 28 }, // AI Tools Used (Student Declaration)
+      { wch: 28 }, // Purpose and Usage (Student Declaration)
+      { wch: 28 }, // Key prompts (Student Declaration)
+    ];
+
+    // Header row heights
+    worksheet['!rows'] = [{ hpt: 15 }, { hpt: 32 }];
+
+    // Style header rows
+    for (let R = 0; R < 2; ++R) {
+      for (let C = 0; C < rubricHeaders.length + studentHeaders.length; ++C) {
+        const cell_address = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!worksheet[cell_address]) continue;
+
+        const isRubricHeader = C < rubricHeaders.length;
+
+        worksheet[cell_address].s = {
+          font: {
+            bold: true,
+            color: { rgb: isRubricHeader ? 'FFFFFF' : '000000' },
+          },
+          fill: {
+            patternType: 'solid',
+            fgColor: { rgb: isRubricHeader ? '294880' : 'A9D08E' },
+          },
+          alignment: {
+            horizontal: 'center',
+            vertical: 'center',
+            wrapText: true,
+          },
+          border: {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' },
+          },
+        };
+      }
+    }
+
+    // Style data rows
+    for (let R = 2; R < data.length; ++R) {
+      for (let C = 0; C < rubricHeaders.length + studentHeaders.length; ++C) {
+        const cell_address = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!worksheet[cell_address]) continue;
+        worksheet[cell_address].s = {
+          alignment: { wrapText: true, vertical: 'top' },
+          border: {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' },
+          },
+        };
+      }
+    }
+
+    // Create workbook and export
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'rubric');
+
+    // Export to file
+    XLSX.writeFile(
+      workbook,
+      `${r.name.replace(/\s+/g, '_').toLowerCase()}.xlsx`,
+    );
   };
 
   // Request delete: open confirmation dialog for rubric
@@ -263,7 +356,12 @@ export default function RubricsHomeClient({ initialData }: Props) {
               Try adjusting search or create a new rubric from scratch or a
               template.
             </p>
-            <Button className="mt-4" onClick={() => setCreateOpen(true)}>
+            <Button
+              variant={'outline'}
+              className="mt-4"
+              onClick={() => setCreateOpen(true)}
+            >
+              <Plus className="h-4 w-4" />
               Create rubric
             </Button>
           </div>
@@ -278,7 +376,6 @@ export default function RubricsHomeClient({ initialData }: Props) {
                 <RubricCard
                   key={r.id}
                   item={r}
-                  onDuplicate={handleDuplicate}
                   onExport={handleExport}
                   onDeleteRequest={requestDelete}
                 />
@@ -286,7 +383,7 @@ export default function RubricsHomeClient({ initialData }: Props) {
             </div>
           ) : (
             <div className="rounded-2xl border">
-              <RubricTable rows={filtered} onDeleteRequest={requestDelete} />
+              <RubricTable rows={filtered} onExport={handleExport} onDeleteRequest={requestDelete} />
             </div>
           ))}
 
