@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/lib/UserContext';
 
 const defaultAvatars = [
   '/avatars/avatar1.svg',
@@ -22,7 +21,6 @@ const defaultAvatars = [
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, loading } = useUser();
   
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
