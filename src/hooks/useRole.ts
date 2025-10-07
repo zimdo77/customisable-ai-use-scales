@@ -49,7 +49,7 @@ export function useRole(): UseRoleReturn {
       const { data, error: fetchError } = await supabase
         .from('profiles')
         .select('role, avatar')
-        .eq('id', id)
+        .eq('id', user.id)
         .single();
 
       if (fetchError) {

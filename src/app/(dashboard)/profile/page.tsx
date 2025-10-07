@@ -25,7 +25,6 @@ export default function ProfilePage() {
   
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [customAvatar, setCustomAvatar] = useState<File | null>(null);
 
   // Use the useRole hook
   const {
@@ -39,6 +38,7 @@ export default function ProfilePage() {
     avatar,
   } = useRole();
 
+  const [userAvatar, setUserAvatar] = useState(avatar || '');
   const [selectedAvatar, setSelectedAvatar] = useState(avatar || '');
 
   if (roleLoading) return <div>Loading...</div>;
@@ -72,7 +72,8 @@ export default function ProfilePage() {
       alert('Could not update avatar.');
     } else {
     alert('Avatar updated successfully!');
-  }
+    setUserAvatar(url);
+    }
   };
 
   // Delete Account
@@ -105,7 +106,7 @@ export default function ProfilePage() {
       <div className="flex-shrink-0 flex flex-col items-center">
             <div className="flex flex-col items-center space-y-2">
               <Avatar className="w-24 h-24 border-2 border-black">
-                <AvatarImage src={avatar|| selectedAvatar || defaultAvatars[0]} alt="Profile" />
+                <AvatarImage src={selectedAvatar || avatar || defaultAvatars[0]} alt="Profile" />
                 <AvatarFallback>◎</AvatarFallback>
               </Avatar>
 
@@ -139,7 +140,7 @@ export default function ProfilePage() {
               </h1>
               <div className="flex flex-col items-center space-y-2">
               <Avatar className="w-24 h-24 border-2 border-black">
-                <AvatarImage src={avatar || ''} alt="Profile" />
+                <AvatarImage src={userAvatar || ''} alt="Profile" />
                 <AvatarFallback>◎</AvatarFallback>
               </Avatar>
               <p className="text-muted-foreground">
