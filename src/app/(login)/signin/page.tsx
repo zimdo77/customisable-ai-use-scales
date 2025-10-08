@@ -1,15 +1,17 @@
 // magic-link login, no siderbar
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Mail } from 'lucide-react';
+
+import { Eye, EyeOff, Mail, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginPage() {
   // Code here
@@ -17,6 +19,55 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [callbackError, setCallbackError] = useState('');
+  const [callbackErrorDescription, setCallbackErrorDescription] = useState('');
+  const [signupSuccess, setSignupSuccess] = useState(false);
+
+  // Redirected from signup page/errors
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.hash.substring(1));
+      setSignupSuccess(params.get('signup') === 'success');
+      setCallbackError(params.get('error') || '');
+      setCallbackErrorDescription(params.get('error_description') || '');
+    }
+  }, []);
+
+  // Sign-in handler
+  const handleSignIn = async (e: FormEvent) => {
+    e.preventDefault();
+
+    setError('');
+    setLoading(true);
+
+    try {
+      // Sign in with Supabase
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+      if (signInError) {
+        setError(signInError.message);
+        return;
+      }
+
+      if (data.user) {
+        // Successful sign in!
+        console.log('Sign in successful:', data.user.email);
+
+        router.push('/loginTest');
+      }
+    } catch (err) {
+      console.error('Sign in error:', err);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     // This div basically centers everything with a light grey background
@@ -39,8 +90,37 @@ export default function LoginPage() {
               Please login to view your templates
             </p>
           </div>
+          {signupSuccess && (
+            <Alert>
+              <AlertDescription className="text-black">
+                Sign Up Successful! Please Confirm Email!
+              </AlertDescription>
+            </Alert>
+          )}
+          {callbackError && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                {callbackError}
+                {callbackErrorDescription && (
+                  <>
+                    <br />
+                    <span className="text-sm text-muted-foreground">
+                      {callbackErrorDescription}
+                    </span>
+                  </>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-          <form className="space-y-4">
+          <form onSubmit={handleSignIn} className="space-y-4">
             <div className="space-y-2">
               {/* htmlFor="email" links this label to id=email */}
               <Label htmlFor="email">Email</Label>
@@ -52,6 +132,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={loading}
               ></Input>
             </div>
             <div className="space-y-2">
@@ -60,10 +141,12 @@ export default function LoginPage() {
               <div className="relative">
                 <Input
                   id="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Please enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={loading}
                 ></Input>
                 {/* Creating the eye icon */}
                 <button
@@ -76,8 +159,8 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full">
-              Sign in
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
 
