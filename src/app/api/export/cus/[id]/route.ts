@@ -1,3 +1,5 @@
+"use server";
+
 // Excel export for a CUS
 // Filler
 import { NextRequest, NextResponse } from 'next/server';
