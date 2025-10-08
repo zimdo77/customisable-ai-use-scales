@@ -53,14 +53,9 @@ export default function LoginPage() {
       if (signInError) {
         setError(signInError.message);
         return;
-      }
-
-      if (data.user) {
-        // Successful sign in!
-        console.log('Sign in successful:', data.user.email);
-
-        router.push('/loginTest');
-      }
+        } else{
+          router.push('my-rubrics');
+        }
     } catch (err) {
       console.error('Sign in error:', err);
       setError('An unexpected error occurred. Please try again.');
