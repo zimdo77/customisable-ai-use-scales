@@ -6,10 +6,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 
 // Github pages
-export const dynamic = "force-static";
-export async function generateStaticParams() {
-  return [{}];
-}
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
