@@ -1,5 +1,3 @@
-"use server";
-
 // Excel export for a CUS
 // Filler
 
