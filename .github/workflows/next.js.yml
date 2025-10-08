@@ -76,6 +76,8 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
+      - name: Clean Next.js cache
+        run: rm -rf .next/cache
       - name: Build with Next.js (skip lint)
         run: ${{ steps.detect-package-manager.outputs.runner }} next build --no-lint
 
