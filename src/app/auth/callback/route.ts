@@ -5,6 +5,12 @@ import { type NextRequest } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 
+// Github pages
+export const dynamic = "force-static";
+export async function generateStaticParams() {
+  return [{}];
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const token_hash = searchParams.get('token_hash')
