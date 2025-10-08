@@ -54,7 +54,7 @@ export default function LoginPage() {
         setError(signInError.message);
         return;
         } else{
-           router.push('my-rubrics');
+          router.push('my-rubrics');
         }
     } catch (err) {
       console.error('Sign in error:', err);

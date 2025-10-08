@@ -30,23 +30,26 @@ export async function updateSession(request: NextRequest) {
   );
 
   // refreshing the auth token
-  const { data, error } = await supabase.auth.getUser()
-  if ((error || !data?.user) && (
-  !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/signup'))) {
+  const { data } = await supabase.auth.getUser()
+
+  const isAuthRoute = request.nextUrl.pathname.startsWith('/signin') ||
+    request.nextUrl.pathname.startsWith('/auth') ||
+    request.nextUrl.pathname.startsWith('/signup')
+
+  if (!(data?.user) && !isAuthRoute) {
     // no user, redirect to login
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = '/signin'
     return NextResponse.redirect(url)
-  } else if (data?.user) {
-    // user exists, get role
-    console.log(data.user);
-    const name = (data.user.user_metadata).get('full_name');
-    const role = (data.user.user_metadata).get('role');
-    supabaseResponse.cookies.set('user_name', name);
-    supabaseResponse.cookies.set('user_role', role);
+  }
+  if (data?.user && isAuthRoute) {
+    // user is logged in, redirect away from auth pages
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url)
   }
 
   return supabaseResponse;
-}
+};
+
+

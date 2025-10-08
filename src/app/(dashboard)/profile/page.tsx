@@ -140,7 +140,7 @@ export default function ProfilePage() {
               </h1>
               <div className="flex flex-col items-center space-y-2">
               <Avatar className="w-24 h-24 border-2 border-black">
-                <AvatarImage src={userAvatar || ''} alt="Profile" />
+                <AvatarImage src={userAvatar || avatar || ''} alt="Profile" />
                 <AvatarFallback>◎</AvatarFallback>
               </Avatar>
               <p className="text-muted-foreground">

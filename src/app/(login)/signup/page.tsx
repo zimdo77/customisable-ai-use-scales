@@ -145,8 +145,7 @@ export default function SignUpPage() {
               </AlertDescription>
             </Alert>
           )}
-
-          <div className="space-y-4">
+          <form onSubmit={handleFormSubmit} className="space-y-4">
             {/* Email Field */}
             <div className="space-y-2">
               {/* htmlFor="email" links this label to id=email */}
@@ -239,7 +238,9 @@ export default function SignUpPage() {
                   : 'Register as User'}
               </Button>
             </div>
-          </div>
+            {/* Hidden submit button to allow form submission via Enter key */}
+            <button type="submit" style={{ display: 'none' }}></button>
+          </form>
 
           {/* Sign in link */}
           <div className="text-center text-sm">
