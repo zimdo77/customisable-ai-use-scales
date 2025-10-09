@@ -1,7 +1,7 @@
 // Redirect to either /home or /login
 import { redirect } from 'next/navigation';
-import { createClient } from '@/utils/supabase/server';
-import LoginPage from './login/page';
+import { createClient } from '@/app/utils/supabase/server';
+import LoginPage from './(login)/signin/page';
 
 export default async function Home() {
   const supabase = await createClient();
@@ -15,5 +15,6 @@ export default async function Home() {
   if (session?.user) {
     redirect('/my-rubrics');
   }
+
   return <LoginPage />;
 }
